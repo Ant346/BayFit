@@ -63,8 +63,9 @@ while ntol >tol
     
     %Update centroids positioins
     T=Y*B'+repmat(t',[M 1]);
-  
-end
+    if iter>200
+        disp("something was wrong")
+    end
 e1=clock;
 iter_num(1)=iter;
 iter_time(1)=etime(e1,s1);
