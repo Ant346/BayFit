@@ -86,6 +86,8 @@ sintheta = sin(theta);
 x = cos(phi') * sintheta;
 y = sin(phi') * sintheta;
 z = ones(length(phi),1) * cos(theta);
+
+
 NP=numel(x);
 for i = 1:NP
     res = [x(i) y(i) z(i) 1] * trans';
@@ -137,6 +139,7 @@ switch type
         x=x(:);
         y=y(:);
         z=z(:);
+
     case 2
         surf(x,y,z);
         view(3);
@@ -144,8 +147,7 @@ end
 
 
 
-
-Pt=[x y z];
+Pt=[x y z ];
 
 
 end

@@ -1,4 +1,5 @@
-function [Samples1,L]=generate_ellipsoidal_data(ell_par,type,num)
+% function [Samples1,L]=generate_ellipsoidal_data(ell_par,type,num, gt, my_pt)
+function [Samples1,L]=generate_ellipsoidal_data(type,num, std, gt, my_pt)
 %==========================================================================
 % Generate ellipsoidal data points for fitting tests
 % Method: First generate spherical points and then using the affine
@@ -18,67 +19,83 @@ function [Samples1,L]=generate_ellipsoidal_data(ell_par,type,num)
 %%=========================================================================
 
 
-% ellipsoidal points
-center=ell_par(:,1:3)';
-a=ell_par(1,4);
-b=ell_par(1,5);
-c=ell_par(1,6);
-alpha=ell_par(1,7);
-beta=ell_par(1,8);
-gamma=ell_par(1,9);
+% % ellipsoidal points
+% center=ell_par(:,1:3)';
+% a=ell_par(1,4);
+% b=ell_par(1,5);
+% c=ell_par(1,6);
+% alpha=ell_par(1,7);
+% beta=ell_par(1,8);
+% gamma=ell_par(1,9);
+% 
+% % scale matrix
+% A=diag([1/a^2,1/b^2,1/c^2]);
+% 
+% % rotation matrix
+% invRx=[1 0 0;
+%     0 cos(-alpha) sin(-alpha);
+%     0 -sin(-alpha) cos(-alpha);
+% ];
+% 
+% invRy=[cos(-beta) 0 sin(-beta);
+%     0 1 0;
+%     -sin(-beta) 0 cos(-beta);
+% ];
+% 
+% invRz=[cos(-gamma) sin(-gamma) 0;
+%     -sin(-gamma) cos(-gamma) 0;
+%     0 0 1;
+% ];
+% 
+% R=invRz*invRy*invRx;
+% M=R'*A*R;
+% [~, S, V] = svd(M);%LL'=M;
+% L= real(V' * diag(1./sqrt(diag(S))) * V);
+% 
+% 
+% 
+% Dimension=3;
+% NumSamples=num;
+% 
+% 
+% % Obtain random samples evenly distributed on the surface of the unit hypersphere
+% Samples=randn(Dimension,NumSamples);
+% SampleNorms=sqrt(sum(Samples.^2,1));
+% Samples=Samples./repmat(SampleNorms,[Dimension 1]); 
+% 
+% 
+% % Add some noise
+% Samples=Samples+0.05*randn(size(Samples));% noise: 0.01-0.05-0.1-0.15-0.2-0.25
+% 
+% % Transform the data into the desired ellipsoid
+% Samples=L*Samples+repmat(center,[1 NumSamples]); 
 
-% scale matrix
-A=diag([1/a^2,1/b^2,1/c^2]);
-
-% rotation matrix
-invRx=[1 0 0;
-    0 cos(-alpha) sin(-alpha);
-    0 -sin(-alpha) cos(-alpha);
-];
-
-invRy=[cos(-beta) 0 sin(-beta);
-    0 1 0;
-    -sin(-beta) 0 cos(-beta);
-];
-
-invRz=[cos(-gamma) sin(-gamma) 0;
-    -sin(-gamma) cos(-gamma) 0;
-    0 0 1;
-];
-
-R=invRz*invRy*invRx;
-M=R'*A*R;
-[~, S, V] = svd(M);%LL'=M;
-L= real(V' * diag(1./sqrt(diag(S))) * V);
-
-
-
-Dimension=3;
-NumSamples=num;
-
-
-% Obtain random samples evenly distributed on the surface of the unit hypersphere
-Samples=randn(Dimension,NumSamples);
-SampleNorms=sqrt(sum(Samples.^2,1));
-Samples=Samples./repmat(SampleNorms,[Dimension 1]); 
-
-
-% Add some noise
-Samples=Samples+0.05*randn(size(Samples));% noise: 0.01-0.05-0.1-0.15-0.2-0.25
-
-% Transform the data into the desired ellipsoid
-Samples=L*Samples+repmat(center,[1 NumSamples]); 
-
-
+%Samples = Samples(:, 1:60);
 Outliers=[];
-NumOut=0.3*num;
-if type
-    Ox=rand(1,NumOut)*200-100;
-    Oy=rand(1,NumOut)*200-100;
-    Oz=rand(1,NumOut)*150-50;
-    Outliers=[Ox;Oy;Oz];
-end
+%smpl =  Samples' ;
+smpl = my_pt;
+if gt
+    %Samples = my_pts;
+    
+    
+    
+    mean_smpl = mean(smpl);
+%     std = ell_par(1,10);
+    
+    snr = mean_smpl/std;
+        
+    
+    
+    NumOut=0.3*num;
+    if type
 
-Samples1.sample=Samples';
-Samples1.outlier=Outliers';
+        Ox = awgn(smpl(:,1),snr(1,1),'measured');
+        Oy = awgn(smpl(:,2),snr(1,2),'measured');
+        Oz = awgn(smpl(:,3),snr(1,3),'measured');
+        Outliers=[Ox,Oy,Oz];
+
+    end
+end
+Samples1.sample=smpl;
+Samples1.outlier=Outliers;
 
