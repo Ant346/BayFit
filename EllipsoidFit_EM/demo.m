@@ -7,7 +7,9 @@ clc;
 close all;
 clear;
 
-my_file = "our_data\0_0.4100"
+tic
+
+my_file = "our_data\0_0.0100"
 std_n = 0.11
 % read our data
 % ptCloud = pcread(my_file + ".pcd").Location * 10;
@@ -172,3 +174,5 @@ v_orig = (4.0/3.0)*pi*semiaxiss(1)*semiaxiss(2)*semiaxiss(3)
 v_intersect = min(v_pred, v_orig) * count / pred_size(1,1)
 
 IoU =  v_intersect / (v_orig + v_pred - v_intersect)
+
+toc
